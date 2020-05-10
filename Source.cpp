@@ -1,6 +1,5 @@
 /*
  * File:   Source.cpp
- * Author: Olivia Leonard
  *
  * Last Update: 5/09
  */

@@ -1,6 +1,5 @@
 /*
   * File:   Plant.cpp
-  * Author: Olivia Leonard
   *
   * Last Update: 5/09
  */
