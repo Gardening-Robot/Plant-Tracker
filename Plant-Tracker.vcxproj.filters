@@ -21,13 +21,16 @@
     <ClCompile Include="Plant.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Year.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Plant.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="plants2020.csv" />
+    <ClInclude Include="Year.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

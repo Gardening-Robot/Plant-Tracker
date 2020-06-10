@@ -1,7 +1,8 @@
  /*
   * File:   Plant.h
   *
-  * Last Update: 5/08
+  * Last Update: 06/10
+  * Added leap year support
   */
 
 #ifndef PLANT_H
@@ -16,19 +17,20 @@ class Plant
 {
 protected:
     string name;
+    int year;
     map <int, string> plantHarvestDates;
     string startDate;
     int dateToPos(string date);
     string posToDate(int position);
 
 public:
-    const static int daysInMonth[12];
-    Plant(string name, string plantDate);
-    Plant(string name, string plantDate, string harvestDate);
+    Plant(string name, string plantDate, int year);
+    Plant(string name, string plantDate, string harvestDate, int year);
     void addHarvestDate(string harvestDate);
     string getName();
     string getPlantDate();
     string getHarvestDates();
+    int getYear();
     string to_string();
 };
 #endif  /*PLANT_H*/ 

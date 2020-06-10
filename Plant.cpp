@@ -1,23 +1,27 @@
 /*
   * File:   Plant.cpp
   *
-  * Last Update: 5/09
+  * Last Update: 06/10
+  * Added leap year support
  */
 
+#include <iostream>
 #include <string>
 #include <map>
 #include "Plant.h"
+#include "Year.h"
+//#include "Year.cpp"
 
-const int Plant::daysInMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 30, 30, 31, 30, 31 };
-
-Plant::Plant(string name, string plantDate) {
+Plant::Plant(string name, string plantDate, int year) {
     this->name = name;
-    plantHarvestDates.insert(std::pair<int, string>(0, plantDate));
+    this->year = year;
     startDate = plantDate;
+    plantHarvestDates.insert(std::pair<int, string>(0, plantDate));
 }
 
-Plant::Plant(string name, string plantDate, string harvestDate) {
+Plant::Plant(string name, string plantDate, string harvestDate, int year) {
     this->name = name;
+    this->year = year;
     startDate = plantDate;
     plantHarvestDates.insert(std::pair <int, string>(0, startDate));
     plantHarvestDates.insert(std::pair <int, string>(dateToPos(harvestDate), harvestDate));
@@ -41,6 +45,10 @@ string Plant::getHarvestDates() {
     return harvestDates;
 }
 
+int Plant::getYear() {
+    return year;
+}
+
 void Plant::addHarvestDate(string harvestDate) {
     plantHarvestDates.insert(std::pair<int, string>(dateToPos(harvestDate), harvestDate));
 }
@@ -62,10 +70,10 @@ int Plant::dateToPos(string currentDate) {
     if (currentMonth == startMonth)
         return currentDay - startDay;
     else if (currentMonth > startMonth) {
-        int daysInStartMonth = daysInMonth[startMonth - 1] - startDay;
+        int daysInStartMonth = getDaysInMonth(startMonth - 1, year) - startDay;
         int fullMonthDays = 0;
         for (int i = startMonth; i < currentMonth - 1; i++) {
-            fullMonthDays += daysInMonth[i];
+            fullMonthDays += getDaysInMonth(i, year);
         }
         return currentDay + daysInStartMonth + fullMonthDays;
     }
@@ -78,7 +86,7 @@ string Plant::posToDate(int position) {
     int startDay = std::stoi(startDate.substr(3));
     int currentMonth = 0;
     int currentDay = 0;
-    if (daysInMonth[startMonth - 1] > position + startDay) { // if (# of days in start month > position + start day)
+    if (getDaysInMonth(startMonth - 1, year) >= position + startDay) { // if (# of days in start month >= position + start day)
         if (position + startDay < 10) {
             return (startDate.substr(0, 2) + "/0" + std::to_string(position + startDay));
         }
@@ -87,9 +95,9 @@ string Plant::posToDate(int position) {
     }
     else {
         currentMonth = startMonth + 1;
-        currentDay = position - daysInMonth[startMonth - 1] + startDay;
-        while (daysInMonth[currentMonth - 1] < currentDay) {
-            currentDay -= daysInMonth[currentMonth - 1];
+        currentDay = position - getDaysInMonth(startMonth - 1, year) + startDay;
+        while (getDaysInMonth(currentMonth - 1, year) < currentDay) {
+            currentDay -= getDaysInMonth(currentMonth - 1, year);
             currentMonth++;
         }
         if (currentDay < 10 && currentMonth < 10)

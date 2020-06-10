@@ -1,7 +1,8 @@
 /*
  * File:   Source.cpp
  *
- * Last Update: 5/09
+ * Last Update: 06/10
+ * Added leap year support
  */
 
 #include <iostream>
@@ -10,6 +11,7 @@
 #include <string>
 #include <vector>
 #include "Plant.h"
+#include "Year.h"
 
 using std::vector;
 using std::cout;
@@ -19,13 +21,16 @@ using std::endl;
 vector<Plant> dataInit(string fileName);
 void harvestPlant(vector<Plant>& plants, string plantName, string date);
 string allToString(vector<Plant> plants);
-void writeToFile(vector<Plant> plants);
-bool checkDateFormat(string &date);
+void writeToFile(vector<Plant> plants, string year);
+bool checkDateFormat(string &date, int year);
 
 int main()
 {
-    cout << "Gardening Project 3.0\n";
-    vector<Plant> myPlants = dataInit("plants2020.csv"); // import data from csv file to vector
+    string yearS = "";
+    cout << "Year to load: ";
+    cin >> yearS;
+    int year = stoi(yearS);
+    vector<Plant> myPlants = dataInit(yearS + ".csv"); // import data from csv file to vector
     char choice = ' ';
     while (choice != '4')
     {
@@ -53,10 +58,10 @@ int main()
             cout << "Enter plant name (one word only): ";
             cin >> enterName;
             cout << "Enter date planted (Format: MM/DD): ";
-            while (!checkDateFormat(enterTime)) { // gets input and checks its validity
+            while (!checkDateFormat(enterTime, year)) { // gets input and checks its validity
                 cout << "Incorrect format" << endl << "Enter date planted (Format: MM/DD): ";
             }
-            myPlants.push_back(Plant(enterName, enterTime));
+            myPlants.push_back(Plant(enterName, enterTime, year));
             break;
         }
         case '3': //harvest plant
@@ -65,7 +70,7 @@ int main()
             cout << "Enter plant name: ";
             cin >> enterName;
             cout << "Enter date harvested (Format: MM/DD): ";
-            while (!checkDateFormat(enterTime)) { // gets input and checks its validity
+            while (!checkDateFormat(enterTime, year)) { // gets input and checks its validity
                 cout << "Incorrect format" << endl << "Enter date harvested (Format: MM/DD): ";
             }
             harvestPlant(myPlants, enterName, enterTime);
@@ -73,7 +78,7 @@ int main()
         }
         case '4': //end program
         {
-            writeToFile(myPlants); //save changes
+            writeToFile(myPlants, yearS); //save changes
             return 0;
             break;
         }
@@ -92,31 +97,26 @@ vector<Plant> dataInit(string fileName)
 {
     vector<Plant> plants;
     std::ifstream plantFile;
-    try { // open file
-        plantFile.open(fileName);
-        if (!plantFile.is_open())
-            throw false;
-    }
-    catch (bool isOpenEx) {
-        cout << fileName << " is not open and probably does not exist." << endl;
-        return plants;
-    }
-    vector<string> row;
-    string line, word;
-    int plantCount = 0; // plantCount = current row
-    while (plantFile >> line) { // inputting 1 line at a time
-        row.clear();
-        std::stringstream s(line);
-        while (getline(s, word, ',')) { // read each column and store each word into the vector
-            row.push_back(word);
+    plantFile.open(fileName);
+    if (plantFile.is_open()) {
+        int year = stoi(fileName.substr(0, 4));
+        vector<string> row;
+        string line, word;
+        int plantCount = 0; // plantCount = current row
+        while (plantFile >> line) { // inputting 1 line at a time
+            row.clear();
+            std::stringstream s(line);
+            while (getline(s, word, ',')) { // read each column and store each word into the vector
+                row.push_back(word);
+            }
+            if (row.size() >= 2) //has name and plant date
+                plants.push_back(Plant(row.at(0), row.at(1), year));
+            if (row.size() > 2) { // also has harvest dates
+                for (int i = 2; i < row.size(); i++) // add as many harvest dates as needed
+                    plants.at(plantCount).addHarvestDate(row.at(i));
+            }
+            plantCount++;
         }
-        if (row.size() >= 2) //has name and plant date
-            plants.push_back(Plant(row.at(0), row.at(1)));
-        if (row.size() > 2) { // also has harvest dates
-            for (int i = 2; i < row.size(); i++) // add as many harvest dates as needed
-                plants.at(plantCount).addHarvestDate(row.at(i));
-        }
-        plantCount++;
     }
     plantFile.close();
     return plants;
@@ -149,10 +149,10 @@ void harvestPlant(vector<Plant>& plants, string plantName, string date)
     }
 }
 
-void writeToFile(vector<Plant> plants)
+void writeToFile(vector<Plant> plants, string year)
 {
     std::ofstream plantFile;
-    plantFile.open("plants2020.csv", std::ofstream::trunc); //open and clear file
+    plantFile.open(year + ".csv", std::ofstream::trunc); //open and clear file
     for (Plant plant : plants) //input all data
     {
         plantFile << plant.getName() << ","
@@ -162,7 +162,7 @@ void writeToFile(vector<Plant> plants)
     plantFile.close();
 }
 
-bool checkDateFormat(string &date)
+bool checkDateFormat(string &date, int year)
 {
     cin.clear();
     cin >> date;
@@ -173,7 +173,7 @@ bool checkDateFormat(string &date)
     if (month > 12 || month < 1) { // checks month validity
         return false;
     }
-    if (atoi(date.substr(3, 5).c_str()) > Plant::daysInMonth[month - 1] && atoi(date.substr(3, 5).c_str()) > 0) { //checks day validity
+    if (atoi(date.substr(3, 5).c_str()) > getDaysInMonth(month - 1, year) && atoi(date.substr(3, 5).c_str()) > 0) { //checks day validity
         return false;
     }
     return true;
