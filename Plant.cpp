@@ -5,7 +5,6 @@
   * Added leap year support
  */
 
-#include <iostream>
 #include <string>
 #include <map>
 #include "Plant.h"
