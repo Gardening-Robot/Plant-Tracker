@@ -1,8 +1,8 @@
 /*
  * File:   Source.cpp
  *
- * Last Update: 06/10
- * Added leap year support
+ * Last Update: 06/13
+ * minor prompt change
  */
 
 #include <iostream>
@@ -26,8 +26,9 @@ bool checkDateFormat(string &date, int year);
 
 int main()
 {
+    cout << "Plant Info Tracker for Gardens" << endl;
     string yearS = "";
-    cout << "Year to load: ";
+    cout << "Enter year to load saved info: ";
     cin >> yearS;
     int year = stoi(yearS);
     vector<Plant> myPlants = dataInit(yearS + ".csv"); // import data from csv file to vector
